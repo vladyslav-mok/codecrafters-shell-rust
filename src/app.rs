@@ -37,9 +37,11 @@ impl REPL {
             return Ok(());
         }
 
-        let tokens: Vec<&str> = input.split_whitespace().collect();
-        let command_name = tokens[0];
-        let args = &tokens[1..];
+        let mut words = input.split_whitespace();
+
+        let command_name = words.next().unwrap();
+        let args = shlex::split(input.trim_start_matches(command_name)).unwrap();
+        let args = args.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
 
         if let Some(command) = self.cmd_registry.get_command(command_name) {
             command.run(args.to_vec(), &self.cmd_registry)?;
