@@ -20,6 +20,7 @@ impl Command for ExternalCommand {
         args: Vec<&str>,
         _: &CommandsRegistry,
         redirect_path: Option<String>,
+        redirect_error_path: Option<String>,
     ) -> Result<(), String> {
         let output = std::process::Command::new(&self.name)
             .args(args)
@@ -32,9 +33,13 @@ impl Command for ExternalCommand {
                 .write_all(&output.stdout)
                 .map_err(|err| err.to_string())?;
         }
-        std::io::stderr()
-            .write_all(&output.stderr)
-            .map_err(|err| err.to_string())?;
+        if let Some(err_path) = redirect_error_path {
+            std::fs::write(err_path, output.stderr).map_err(|err| err.to_string())?;
+        } else {
+            std::io::stderr()
+                .write_all(&output.stderr)
+                .map_err(|err| err.to_string())?;
+        }
 
         Ok(())
     }

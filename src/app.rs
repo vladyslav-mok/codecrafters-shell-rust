@@ -111,6 +111,15 @@ impl REPL {
             }
         }
 
+        let mut redirect_error_path: Option<String> = None;
+        if let Some(pos) = tokens.iter().position(|t| t == "2>") {
+            if pos + 1 < tokens.len() {
+                redirect_error_path = Some(tokens[pos + 1].clone());
+                tokens.remove(pos + 1);
+                tokens.remove(pos);
+            }
+        }
+
         let parts: Vec<&str> = tokens.iter().map(|s| s.as_str()).collect();
         if parts.is_empty() {
             return Ok(());
@@ -120,7 +129,7 @@ impl REPL {
         let args = &parts[1..];
 
         if let Some(command) = self.cmd_registry.get_command(command_name) {
-            command.run(args.to_vec(), &self.cmd_registry, redirect_path)?;
+            command.run(args.to_vec(), &self.cmd_registry, redirect_path, redirect_error_path)?;
         } else {
             return Err(format!("{}: command not found", command_name));
         }

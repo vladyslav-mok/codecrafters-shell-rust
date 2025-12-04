@@ -3,7 +3,13 @@ use super::{Command, CommandsRegistry};
 pub struct PwdCommand;
 
 impl Command for PwdCommand {
-    fn run(&self, _: Vec<&str>, _: &CommandsRegistry, _: Option<String>) -> Result<(), String> {
+    fn run(
+        &self,
+        _: Vec<&str>,
+        _: &CommandsRegistry,
+        _: Option<String>,
+        _: Option<String>,
+    ) -> Result<(), String> {
         match std::env::current_dir() {
             Ok(cwd) => Ok(println!("{}", cwd.display())),
             Err(_) => Err("pwd: failed to get current directory".to_string()),
