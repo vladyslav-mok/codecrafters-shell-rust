@@ -7,7 +7,15 @@ impl Command for CdCommand {
         if args.is_empty() {
             return Err("Usage: cd <directory>".to_string());
         }
-        if std::env::set_current_dir(args[0]).is_ok() {
+        let path = if args[0] == "~" {
+            match std::env::var("HOME") {
+                Ok(home) => home,
+                Err(_) => return Err("cd: HOME not set".to_string()),
+            }
+        } else {
+            args[0].to_string()
+        };
+        if std::env::set_current_dir(path).is_ok() {
             Ok(())
         } else {
             Err(format!("cd: {}: No such file or directory", args[0]))
