@@ -2,11 +2,17 @@
 use std::io::{self, Write};
 
 fn main() {
-    print!("$ ");
-    io::stdout().flush().unwrap();
+    loop {
+        print!("$ ");
+        io::stdout().flush().unwrap();
 
-    // Wait for user input
-    let mut command = String::new();
-    io::stdin().read_line(&mut command).unwrap();
-    println!("{}: command not found", command.trim());
+        let stdin = io::stdin();
+        let mut buffer = String::new();
+
+        stdin.read_line(&mut buffer).unwrap();
+        let buffer = buffer.trim_end().to_owned();
+
+        println!("{}: command not found", buffer);
+        io::stdout().flush().unwrap();
+    }
 }
