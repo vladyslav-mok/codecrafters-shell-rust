@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use super::{Command, CommandsRegistry};
 
 #[derive(Debug)]
@@ -13,13 +15,26 @@ impl ExternalCommand {
 }
 
 impl Command for ExternalCommand {
-    fn run(&self, args: Vec<&str>, _: &CommandsRegistry) -> Result<(), String> {
-        let mut child = std::process::Command::new(&self.name)
+    fn run(
+        &self,
+        args: Vec<&str>,
+        _: &CommandsRegistry,
+        redirect_path: Option<String>,
+    ) -> Result<(), String> {
+        let output = std::process::Command::new(&self.name)
             .args(args)
-            .spawn()
+            .output()
             .map_err(|err| err.to_string())?;
-
-        child.wait().map_err(|err| err.to_string())?;
+        if let Some(path) = redirect_path {
+            std::fs::write(path, output.stdout).map_err(|err| err.to_string())?;
+        } else {
+            std::io::stdout()
+                .write_all(&output.stdout)
+                .map_err(|err| err.to_string())?;
+        }
+        std::io::stderr()
+            .write_all(&output.stderr)
+            .map_err(|err| err.to_string())?;
 
         Ok(())
     }

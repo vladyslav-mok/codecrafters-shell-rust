@@ -17,7 +17,7 @@ pub use pwd::PwdCommand;
 pub use cd::CdCommand;
 
 pub trait Command {
-    fn run(&self, args: Vec<&str>, reg: &CommandsRegistry) -> Result<(), String>;
+    fn run(&self, args: Vec<&str>, reg: &CommandsRegistry, redirect_path: Option<String>) -> Result<(), String>;
     fn get_name(&self) -> String;
     fn get_type_message(&self) -> String;
 }

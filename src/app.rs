@@ -33,50 +33,65 @@ impl REPL {
     }
 
     fn tokenize(input: &str) -> Vec<String> {
-        let mut args: Vec<String> = Vec::new();
+        let mut tokens = Vec::new();
+        let mut current_token = String::new();
+        let mut in_single_quotes = false;
+        let mut in_double_quotes = false;
 
-        let mut current = String::new();
-        let mut is_in_quote = false;
-        let mut is_in_double_quote = false;
-        let mut is_escaped = false;
-
-        for c in input.chars() {
-            if is_escaped {
-                if is_in_double_quote {
-                    if c == '\\' {
-                        current.push('\\');
-                    } else if c == '"' {
-                        current.push('"');
+        let mut chars = input.chars().peekable();
+        while let Some(c) = chars.next() {
+            match c {
+                '\'' if !in_double_quotes => {
+                    in_single_quotes = !in_single_quotes;
+                }
+                '"' if !in_single_quotes => {
+                    in_double_quotes = !in_double_quotes;
+                }
+                '\\' if in_double_quotes => {
+                    if let Some(&next) = chars.peek() {
+                        match next {
+                            '"' | '\\' => {
+                                chars.next();
+                                current_token.push(next);
+                            }
+                            _ => {
+                                current_token.push('\\');
+                                chars.next();
+                                current_token.push(next);
+                            }
+                        }
                     } else {
-                        let mut word = String::from("\\");
-                        word.push(c);
-                        current.push_str(&word);
+                        current_token.push('\\');
                     }
-                } else {
-                    current.push(c);
                 }
-                is_escaped = false;
-            } else if c == '\\' && !is_in_quote {
-                is_escaped = true;
-            } else if c == '\'' && !is_in_double_quote {
-                is_in_quote = !is_in_quote;
-            } else if c == '"' && !is_in_quote {
-                is_in_double_quote = !is_in_double_quote;
-            } else if c == ' ' && !is_in_quote && !is_in_double_quote {
-                if !current.is_empty() {
-                    args.push(current.clone());
-                    current.clear();
+                '\\' if !in_single_quotes && !in_double_quotes => {
+                    if let Some(next) = chars.next() {
+                        current_token.push(next);
+                    }
                 }
-            } else {
-                current.push(c);
+                ' ' | '\t' if !in_single_quotes && !in_double_quotes => {
+                    if !current_token.is_empty() {
+                        tokens.push(current_token.clone());
+                        current_token.clear();
+                    }
+                }
+                _ => {
+                    current_token.push(c);
+                }
             }
         }
 
-        if !current.is_empty() {
-            args.push(current);
+        if !current_token.is_empty() {
+            tokens.push(current_token);
         }
 
-        args
+        for token in tokens.iter_mut() {
+            while token.ends_with('\n') || token.ends_with('\r') {
+                token.pop();
+            }
+        }
+
+        tokens
     }
 
     fn eval(&mut self, input: &str) -> Result<(), String> {
@@ -86,8 +101,17 @@ impl REPL {
 
         let input = input.trim();
 
-        let parts_owned: Vec<String> = Self::tokenize(input);
-        let parts: Vec<&str> = parts_owned.iter().map(|s| s.as_str()).collect();
+        let mut tokens: Vec<String> = Self::tokenize(input);
+        let mut redirect_path: Option<String> = None;
+        if let Some(pos) = tokens.iter().position(|t| t == ">" || t == "1>") {
+            if pos + 1 < tokens.len() {
+                redirect_path = Some(tokens[pos + 1].clone());
+                tokens.remove(pos + 1);
+                tokens.remove(pos);
+            }
+        }
+
+        let parts: Vec<&str> = tokens.iter().map(|s| s.as_str()).collect();
         if parts.is_empty() {
             return Ok(());
         }
@@ -95,14 +119,8 @@ impl REPL {
         let command_name = parts[0];
         let args = &parts[1..];
 
-        // let mut words = input.split_whitespace();
-
-        // let command_name = words.next().unwrap();
-        // let args = shlex::split(input.trim_start_matches(command_name)).unwrap();
-        // let args = args.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
-
         if let Some(command) = self.cmd_registry.get_command(command_name) {
-            command.run(args.to_vec(), &self.cmd_registry)?;
+            command.run(args.to_vec(), &self.cmd_registry, redirect_path)?;
         } else {
             return Err(format!("{}: command not found", command_name));
         }

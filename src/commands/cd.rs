@@ -3,7 +3,7 @@ use super::{Command, CommandsRegistry};
 pub struct CdCommand;
 
 impl Command for CdCommand {
-    fn run(&self, args: Vec<&str>, _: &CommandsRegistry) -> Result<(), String> {
+    fn run(&self, args: Vec<&str>, _: &CommandsRegistry, _: Option<String>) -> Result<(), String> {
         if args.is_empty() {
             return Err("Usage: cd <directory>".to_string());
         }

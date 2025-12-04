@@ -3,7 +3,7 @@ use super::{Command, CommandsRegistry};
 pub struct TypeCommand;
 
 impl Command for TypeCommand {
-    fn run(&self, args: Vec<&str>, reg: &CommandsRegistry) -> Result<(), String> {
+    fn run(&self, args: Vec<&str>, reg: &CommandsRegistry, _: Option<String>) -> Result<(), String> {
         let command_name = match args.get(0) {
             Some(arg) => arg,
             None => return Err("example usage: type <command name>".to_string()),
