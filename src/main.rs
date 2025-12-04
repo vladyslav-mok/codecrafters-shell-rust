@@ -2,17 +2,20 @@
 use std::io::{self, Write};
 
 fn main() {
+    let stdin = io::stdin();
+    let mut input = String::new();
     loop {
+        input.clear();
         print!("$ ");
         io::stdout().flush().unwrap();
 
-        let stdin = io::stdin();
-        let mut buffer = String::new();
+        stdin.read_line(&mut input).unwrap();
 
-        stdin.read_line(&mut buffer).unwrap();
-        let buffer = buffer.trim_end().to_owned();
-
-        println!("{}: command not found", buffer);
-        io::stdout().flush().unwrap();
+        match input.trim() {
+            "exit" => break,
+            &_ => {
+                println!("{}: command not found", input.trim());
+            }
+        }
     }
 }
