@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::Path};
 
-use super::{Command, EchoCommand, ExitCommand, ExternalCommand, TypeCommand};
+use super::{Command, EchoCommand, ExitCommand, ExternalCommand, TypeCommand, PwdCommand};
 
 pub struct CommandsRegistry {
     builtin: HashMap<String, Box<dyn Command>>,
@@ -81,6 +81,7 @@ impl Default for CommandsRegistry {
         registry.register_builtin(Box::new(ExitCommand));
         registry.register_builtin(Box::new(EchoCommand));
         registry.register_builtin(Box::new(TypeCommand));
+        registry.register_builtin(Box::new(PwdCommand));
 
         registry.register_external();
 

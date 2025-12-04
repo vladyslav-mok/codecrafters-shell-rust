@@ -1,6 +1,7 @@
 mod echo;
 mod exit;
 mod typ;
+mod pwd;
 
 mod registry;
 pub use registry::CommandsRegistry;
@@ -11,6 +12,7 @@ pub use external::ExternalCommand;
 pub use echo::EchoCommand;
 pub use exit::ExitCommand;
 pub use typ::TypeCommand;
+pub use pwd::PwdCommand;
 
 pub trait Command {
     fn run(&self, args: Vec<&str>, reg: &CommandsRegistry) -> Result<(), String>;
