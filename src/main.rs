@@ -2,20 +2,17 @@
 use std::io::{self, Write};
 
 fn main() {
-    let stdin = io::stdin();
-    let mut input = String::new();
     loop {
-        input.clear();
         print!("$ ");
         io::stdout().flush().unwrap();
-
-        stdin.read_line(&mut input).unwrap();
-
-        match input.trim() {
+        let mut command = String::new();
+        io::stdin().read_line(&mut command).unwrap();
+        command = command.trim().to_string();
+        let parts = command.split_whitespace().collect::<Vec<&str>>();
+        match parts[0] {
             "exit" => break,
-            &_ => {
-                println!("{}: command not found", input.trim());
-            }
+            "echo" => println!("{}", parts[1..].join(" ")),
+            _ => println!("{}: command not found", command),
         }
     }
 }
