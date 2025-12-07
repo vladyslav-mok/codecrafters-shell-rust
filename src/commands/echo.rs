@@ -31,9 +31,6 @@ impl Command for EchoCommand {
             println!("{}", output_str);
         } else if let Some(path) = output_of_command.output_append.as_ref() {
             append(path, &output_str)?;
-        } else if let Some(err_path) = output_of_command.error_output_append.as_ref() {
-            append(err_path, "")?;
-            println!("{}", output_str);
         } else {
             println!("{}", output_str);
         }
