@@ -16,13 +16,20 @@ pub use exit::ExitCommand;
 pub use pwd::PwdCommand;
 pub use typ::TypeCommand;
 
+#[derive(Debug, Default)]
+pub struct OutputOfCommand {
+    pub output_create: Option<String>,
+    pub error_output_create: Option<String>,
+    pub output_append: Option<String>,
+    pub error_output_append: Option<String>,
+}
+
 pub trait Command {
     fn run(
         &self,
-        args: Vec<&str>,
+        args: &[&str],
         reg: &CommandsRegistry,
-        redirect_path: Option<String>,
-        redirect_error_path: Option<String>,
+        output_of_command: &OutputOfCommand,
     ) -> Result<(), String>;
     fn get_name(&self) -> String;
     fn get_type_message(&self) -> String;

@@ -1,17 +1,14 @@
-use super::{Command, CommandsRegistry};
+use super::{Command, CommandsRegistry, OutputOfCommand};
 
 pub struct PwdCommand;
 
 impl Command for PwdCommand {
-    fn run(
-        &self,
-        _: Vec<&str>,
-        _: &CommandsRegistry,
-        _: Option<String>,
-        _: Option<String>,
-    ) -> Result<(), String> {
+    fn run(&self, _: &[&str], _: &CommandsRegistry, _: &OutputOfCommand) -> Result<(), String> {
         match std::env::current_dir() {
-            Ok(cwd) => Ok(println!("{}", cwd.display())),
+            Ok(cwd) => {
+                println!("{}", cwd.display());
+                Ok(())
+            }
             Err(_) => Err("pwd: failed to get current directory".to_string()),
         }
     }

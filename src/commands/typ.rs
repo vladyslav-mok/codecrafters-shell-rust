@@ -1,16 +1,15 @@
-use super::{Command, CommandsRegistry};
+use super::{Command, CommandsRegistry, OutputOfCommand};
 
 pub struct TypeCommand;
 
 impl Command for TypeCommand {
     fn run(
         &self,
-        args: Vec<&str>,
+        args: &[&str],
         reg: &CommandsRegistry,
-        _: Option<String>,
-        _: Option<String>,
+        _: &OutputOfCommand,
     ) -> Result<(), String> {
-        let command_name = match args.get(0) {
+        let command_name = match args.first() {
             Some(arg) => arg,
             None => return Err("example usage: type <command name>".to_string()),
         };

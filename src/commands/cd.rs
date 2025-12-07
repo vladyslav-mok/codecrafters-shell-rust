@@ -1,15 +1,11 @@
+use crate::commands::OutputOfCommand;
+
 use super::{Command, CommandsRegistry};
 
 pub struct CdCommand;
 
 impl Command for CdCommand {
-    fn run(
-        &self,
-        args: Vec<&str>,
-        _: &CommandsRegistry,
-        _: Option<String>,
-        _: Option<String>,
-    ) -> Result<(), String> {
+    fn run(&self, args: &[&str], _: &CommandsRegistry, _: &OutputOfCommand) -> Result<(), String> {
         if args.is_empty() {
             return Err("Usage: cd <directory>".to_string());
         }

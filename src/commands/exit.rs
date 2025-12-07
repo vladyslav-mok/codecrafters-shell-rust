@@ -1,16 +1,10 @@
-use super::{Command, CommandsRegistry};
+use super::{Command, CommandsRegistry, OutputOfCommand};
 
 pub struct ExitCommand;
 
 impl Command for ExitCommand {
-    fn run(
-        &self,
-        args: Vec<&str>,
-        _: &CommandsRegistry,
-        _: Option<String>,
-        _: Option<String>,
-    ) -> Result<(), String> {
-        let status_code = match args.get(0) {
+    fn run(&self, args: &[&str], _: &CommandsRegistry, _: &OutputOfCommand) -> Result<(), String> {
+        let status_code = match args.first() {
             Some(arg) => arg.parse::<i32>().unwrap_or(0),
             None => 0,
         };
